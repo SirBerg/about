@@ -1,0 +1,2 @@
+Software that make this website possible:
+- Astro (https://astro.build/)

@@ -1,0 +1,40 @@
+---
+interface Props {
+    content: string;
+    href?: string;
+}
+
+const { content, href } = Astro.props;
+---
+{href ?
+    <a href=`${href}`><button><strong>{content}</strong></button></a> :
+    <button><strong>{content}</strong></button>
+}
+<style>
+    button {
+        background-color: #52229f;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        border: none;
+    }
+    button:hover {
+        background-color: #5f14ae;
+    }
+    button:active {
+        background-color: #602cc5;
+    }
+    button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(74, 25, 147, 0.5);
+    }
+    a{
+        color: white !important;
+        text-decoration: none;
+    }
+    a:hover{
+        text-decoration: none;
+    }
+</style>

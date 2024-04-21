@@ -1,0 +1,108 @@
+---
+import Button from '../components/Button.astro';
+import Navbar from '../components/Navbar.astro';
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<Navbar />
+		<slot />
+	</body>
+	<footer>
+		<p style="text-align: center">
+			© 2024 Sir Berg. All rights reserved.
+			<br />
+			This website works because of very cool open source Software which is listed <a href="/cool-software.txt" target="_blank">here</a>
+			<br />
+			<a href="/privacy" target="_blank">Privacy Policy</a> |
+			<a href="mailto:contact@boerg.co" target="_blank">Contact</a> |
+			<a href="/sirberg.gpg.pub">GPG Key</a> |
+			<a href="/sirberg.ssh.pub">SSH Key</a>
+			<br />
+			<sub>Powered by <a href="https://astro.build">Astro</a></sub> <br>
+			<sub>Hubris of Niobe image courtesy of Bungie</sub>
+		</p>
+	</footer>
+</html>
+<style is:global>
+	:root {
+		--accent: 136, 58, 234;
+		--accent-light: 224, 204, 250;
+		--accent-dark: 49, 10, 101;
+		--accent-gradient: linear-gradient(
+			45deg,
+			rgb(var(--accent)),
+			rgb(var(--accent-light)) 30%,
+			white 60%
+		);
+	}
+	html {
+		font-family: system-ui, sans-serif;
+		background: #13151a;
+		background-size: 224px;
+		color: white;
+	}
+	code {
+		font-family:
+			Menlo,
+			Monaco,
+			Lucida Console,
+			Liberation Mono,
+			DejaVu Sans Mono,
+			Bitstream Vera Sans Mono,
+			Courier New,
+			monospace;
+		background-color: black;
+		padding: 0.1em 0.3em;
+		border-radius: 0.3em;
+		color: white;
+		width: 100%;
+		display: block
+	}
+	a {
+		color: rgb(var(--accent));
+		text-decoration: none;
+	}
+	a:visited {
+		color: rgb(var(--accent));
+	}
+	sub{
+		font-size: 0.8em;
+	}
+	body{
+		min-height: 90vh;
+	}
+	footer {
+	    height: 10vh;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background: #13151a;
+		color: white;
+		font-size: 0.8em;
+		text-align: center;
+	}
+	main {
+		margin: auto;
+		padding: 1rem;
+		width: 800px;
+		max-width: calc(100% - 2rem);
+		color: white;
+		font-size: 20px;
+		line-height: 1.6;
+	}
+</style>
