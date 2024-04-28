@@ -1,2 +1,8 @@
 Software that make this website possible:
 - Astro (https://astro.build/)
+- React Chart JS 2 (https://www.npmjs.com/package/react-chartjs-2)
+- React Chart JS   (https://www.npmjs.com/package/react-chartjs)
+- React (unfortunately) (https://reactjs.org/)
+- Nodemon (https://www.npmjs.com/package/nodemon)
+- ts-node (https://www.npmjs.com/package/ts-node)
+- typescript (https://www.npmjs.com/package/typescript)
