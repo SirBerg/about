@@ -1,0 +1,21 @@
+{
+  "name": "statgenerator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon main.ts --ignore stats.json",
+    "generate": "ts-node main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^9.6.0",
+    "chalk": "^3.0.0",
+    "dotenv": "^16.4.5",
+    "inquirer": "^9.2.20",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2"
+  }
+}

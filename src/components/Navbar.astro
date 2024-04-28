@@ -2,10 +2,11 @@
 import Button from './Button.astro';
 ---
 <div class="nav">
-    <h1 class="h1special">boerg.co</h1>
+    <h1 class="h1special" ><a href="/">boerg.co</a></h1>
     <nav>
         <Button href="/" content="Home"></Button>
         <Button href="/privacy" content="Privacy"></Button>
+        <Button href="/words" content="Stats"></Button>
     </nav>
 </div>
 <style>
@@ -26,5 +27,6 @@ import Button from './Button.astro';
         -moz-background-clip: text;
         -webkit-text-fill-color: transparent;
         -moz-text-fill-color: transparent;
+        cursor: pointer;
     }
 </style>
