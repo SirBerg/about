@@ -10,8 +10,20 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.6.3",
     "@astrojs/check": "^0.5.10",
+    "@astrojs/react": "^3.3.0",
+    "@astrojs/sitemap": "^3.1.4",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "astro": "^4.6.3",
+    "better-sqlite3": "^9.6.0",
+    "chalk": "^3.0.0",
+    "chart.js": "^4.4.2",
+    "dotenv": "^16.4.5",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }
 }

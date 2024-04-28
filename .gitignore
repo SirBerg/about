@@ -6,7 +6,8 @@ dist/
 
 # dependencies
 node_modules/
-
+statGenerator/node_modules/
+statGenerator/.env
 # logs
 npm-debug.log*
 yarn-debug.log*

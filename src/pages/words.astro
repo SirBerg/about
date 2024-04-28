@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LineChart from '../components/LineChart';
+---
+<Layout title="Japanese Stats">
+    <main>
+        <h1>Japanese learning Stats</h1>
+        <LineChart client:only/>
+    </main>
+</Layout>
