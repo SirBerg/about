@@ -16,6 +16,8 @@ pnpm-debug.log*
 
 ankiSync/*
 
+docker-compose.yml
+
 # environment variables
 .env
 .env.production
