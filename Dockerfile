@@ -1,3 +1,5 @@
+# This isn't a particularly elegant way to get the anki sync server running, but hey it works.
+# If you wanna update it, don't let me stop you :)
 FROM ubuntu:mantic
 LABEL authors="sirberg"
 WORKDIR /app

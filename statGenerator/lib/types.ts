@@ -1,7 +1,7 @@
 export * from './ankiDBTypes'
 export type generatedDayStat = {
-    reviewCount: number,
-    reviewTime: number,
+    count: number,
+    time: number,
     totalCardsInRotation: number,
 }
 export type DataBaseObject = {
@@ -19,5 +19,8 @@ export type DataBaseObject = {
     //key is the interval, number is the amount of times that interval was used
     intervalDistribution: {
         [key: string]: number
+    },
+    dataPerYear?: {
+        [key: string]: DataBaseObject
     }
 }

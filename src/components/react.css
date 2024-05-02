@@ -1,0 +1,17 @@
+.reactButton{
+    background: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: rgb(95, 20, 174);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px;
+    transition: 0.5s all cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+.reactButton:hover{
+    background: rgba(95, 20, 174, 0.2);
+    scale: 1.05;
+}
