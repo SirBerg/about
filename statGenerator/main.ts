@@ -5,9 +5,9 @@ import {DataBaseObject} from "./lib/types";
 const logger = require('./lib/logger').default;
 const env = require('dotenv').config()
 const fs = require('node:fs');
-
+const addEmptyDates = process.env.ADD_EMPTY_DATES ? process.env.ADD_EMPTY_DATES === "true" : false;
+const addSeperateYears = process.env.ADD_SEPERATE_YEARS ? process.env.ADD_SEPERATE_YEARS === "true" : false;
 const log = new logger();
-
 async function main(){
     log.log('Starting stat generation', 'info', 'Startup');
     log.log('Checking for Anki DB', 'debug', 'Startup');
@@ -29,7 +29,7 @@ async function main(){
     log.log('Checking collections table', 'debug', 'DB Check');
     const decks:Array<AnkIDBDeck> = db.prepare('SELECT * FROM decks').all();
 
-    //choose the deck you want to generate stats fro
+    //choose the deck you want to generate stats from
     let chosenDeck:AnkIDBDeck = {} as AnkIDBDeck
     if(decks.length === 0){
         log.log('No decks found in the AnkiDB, exiting', 'error', 'DB Check');
@@ -83,42 +83,123 @@ async function main(){
         reviewTotalTime: 0,
         reviewPerDay: {},
         easeDistribution: {},
-        intervalDistribution: {}
+        intervalDistribution: {},
+    }
+    if(addSeperateYears === true){
+        generatedStats.dataPerYear = {}
     }
 
     let cardIds:Array<number> = [];
     let intervals = {}
-
-
+    let lastDate:number = revisions[0].id;
+    let intervalsByYear = {}
     //build the stats
     for(const revision of revisions){
         generatedStats.reviewTotalTime += revision.time;
+        let dateWeShouldHave = new Date(lastDate + 8.64e+7).toLocaleDateString('en-GB');
         const date = new Date(revision.id).toLocaleDateString('en-GB');
+        let currentYear = date.split("/")[2].toString();
 
+        //if we have the option to add seperate years and we don't have the year in the dataPerYear object, add it
+        if(addSeperateYears === true && !generatedStats.dataPerYear[currentYear]){
+            generatedStats.dataPerYear[currentYear] = {
+                reviewTotalCount: 0,
+                reviewTotalTime: 0,
+                reviewPerDay: {},
+                easeDistribution: {},
+                intervalDistribution: {},
+            }
+        }
+
+        //if the date is not the same as the last date, we need to add the missing days
+        if(addEmptyDates === true && date !== dateWeShouldHave && revision.id !> lastDate+8.64e+7){
+            log.log(`Found a gap in the dates, adding missing days`, 'debug', 'Stats');
+            let currentDate = new Date(lastDate + 8.64e+7);
+
+            //this means we have a missing date range that we need to add
+            while(currentDate < new Date(revision.id)){
+                log.log(`Adding missing date: ${currentDate.toLocaleDateString('en-GB')}`, 'debug', 'Stats');
+                let missingDate = currentDate.toLocaleDateString('en-GB');
+                if(generatedStats.reviewPerDay[missingDate]){
+                    generatedStats.reviewPerDay[missingDate].count = 0;
+                    generatedStats.reviewPerDay[missingDate].time = 0;
+                    generatedStats.reviewPerDay[missingDate].totalCardsInRotation = cardIds.length;
+                    if(addSeperateYears === true){
+                        generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[missingDate].count = 0;
+                        generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[missingDate].time = 0;
+                        generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[missingDate].totalCardsInRotation = cardIds.length;
+                    }
+                } else {
+                    generatedStats.reviewPerDay[missingDate] = {
+                        count: 0,
+                        time: 0,
+                        totalCardsInRotation: cardIds.length
+                    }
+                    if(addSeperateYears === true){
+                        generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[missingDate] = {
+                            count: 0,
+                            time: 0,
+                            totalCardsInRotation: cardIds.length
+                        }
+                    }
+                }
+                currentDate = new Date(currentDate.getTime() + 8.64e+7);
+            }
+        }
+
+        if(addSeperateYears === true){
+            generatedStats.dataPerYear[currentYear].reviewTotalCount += 1;
+            generatedStats.dataPerYear[currentYear].reviewTotalTime += revision.time;
+        }
         //add the ease to the ease distribution
         if(generatedStats.easeDistribution[revision.ease]){
             generatedStats.easeDistribution[revision.ease] += 1;
+            if(addSeperateYears === true){
+                generatedStats.dataPerYear[date.split("/")[2]].easeDistribution[revision.ease] += 1;
+            }
         } else {
             generatedStats.easeDistribution[revision.ease] = 1;
+            if(addSeperateYears === true){
+                generatedStats.dataPerYear[date.split("/")[2]].easeDistribution[revision.ease] = 1;
+            }
         }
 
         if(cardIds.indexOf(revision.cid) === -1){
             cardIds.push(revision.cid);
+            if(addSeperateYears === true){
+                generatedStats.dataPerYear[date.split("/")[2]].reviewTotalCount += 1;
+            }
         }
 
+        //add the review to the review per day
         if(generatedStats.reviewPerDay[date]){
             generatedStats.reviewPerDay[date].count += 1;
             generatedStats.reviewPerDay[date].time += revision.time;
+            if(addSeperateYears === true){
+                generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[date].count += 1;
+                generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[date].time += revision.time;
+            }
         } else {
             generatedStats.reviewPerDay[date] = {
                 count: 1,
                 time: revision.time,
                 totalCardsInRotation: cardIds.length
             }
+
+            if(addSeperateYears === true){
+                generatedStats.dataPerYear[date.split("/")[2]].reviewPerDay[date] = {
+                    count: 1,
+                    time: revision.time,
+                    totalCardsInRotation: cardIds.length
+                }
+            }
         }
 
-        //overwrite the interval, at the end we have the most up-to-date one
+        //overwrite the interval, at the end we have the most up-to-date one for the card
         intervals[revision.cid] = revision.ivl;
+
+        //overwrite the last date so we can check it in the next loop
+        lastDate = revision.id;
     }
     let generatedIntervals = {}
     //generate the intervals because I don't know how to sql
@@ -130,9 +211,10 @@ async function main(){
         }
     }
     generatedStats.intervalDistribution = generatedIntervals;
+
     log.log('Stats generated', 'info', 'Stats');
     //save the stats to a file
     fs.writeFileSync('./dist/stats.json', JSON.stringify(generatedStats));
     log.log('Stats saved to stats.json', 'info', 'File Write');
 }
-main().catch((e:Error) => log.log(e.message, 'error', 'Main'));
+main()
