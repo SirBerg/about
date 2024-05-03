@@ -335,8 +335,11 @@ export default function ReactCharts() {
         }
 
     }
+
     return (
         <div className="reactCharts">
+            {/*@ts-ignore*/}
+            <h3>There are currently <span className="coolLookingHeader">{stats.reviewPerDay[Object.keys(stats.reviewPerDay)[Object.keys(stats.reviewPerDay).length - 1]].totalCardsInRotation} cards </span> in rotation, which were reviewed <span className = "coolLookingHeader">{stats.reviewTotalCount} times </span> which took <span className="coolLookingHeader">{stats.reviewTotalTime / 1000 / 60 / 60} Hours</span> </h3>
             <h2>Reviews</h2>
             {
                 //@ts-ignore
@@ -348,7 +351,6 @@ export default function ReactCharts() {
             {
                 isRegistered ? (
                     <div>
-
                         <LineChart data={chartData} key={lineChartKey}/>
                         <h2>Card Counts</h2>
                         <DoughnutChart data={stats}/>
