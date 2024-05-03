@@ -328,7 +328,6 @@ export default function ReactCharts() {
             }
             setChartData(dataYear)
             setLineChartKey(lineChartKey + 1)
-            console.log(dataYear, stats)
         }
         else if(id === 'Lifetime'){
             setChartData(stats)
