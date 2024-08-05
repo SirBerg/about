@@ -1,4 +1,4 @@
-import type {DataBaseObject} from "../../statGenerator/lib/types.ts";
+import type {DataBaseObject, generatedDayStat} from "../../statGenerator/lib/types.ts";
 import data from '../chartData/stats.json';
 import './react.css'
 import React, {useEffect, useState} from "react";
@@ -32,7 +32,6 @@ function processLineData(data:DataBaseObject){
     let totalReviews:number[] = []
     let reviewsPerDayDate:number[] = []
     let avgTimeSpentPerCard:number[] = []
-
     let reviewCount:number = 0;
     for(const [index, value] of reviewsPerDay.entries()){
         cardsInRotation.push(value.totalCardsInRotation)
@@ -54,7 +53,14 @@ function processLineData(data:DataBaseObject){
         timeSpentPerDayMinutes: timeSpentPerDayMinutes,
         totalReviews: totalReviews,
         reviewsPerDayDate: reviewsPerDayDate,
-        avgTimeSpentPerCard: avgTimeSpentPerCard
+        avgTimeSpentPerCard: avgTimeSpentPerCard,
+        last30Days:{
+            cardsInRotation: cardsInRotation.slice(-30),
+            timeSpentPerDayMinutes: timeSpentPerDayMinutes.slice(-30),
+            totalReviews: totalReviews.slice(-30),
+            reviewsPerDayDate: reviewsPerDayDate.slice(-30),
+            avgTimeSpentPerCard: avgTimeSpentPerCard.slice(-30)
+        }
     })
 }
 
@@ -287,7 +293,43 @@ export function EaseChart({data}: { data: DataBaseObject }) {
         <div>
             <Bar data={barData} options={{responsive: true}} style={{width: "100vw", maxHeight: "700px"}}/>
         </div>
+    )
+}
 
+export function ReviewPerDayChart({data}: { data: DataBaseObject }){
+    const [reviewsPerWeek, setReviewsPerWeek] = useState<[Array<{stats: generatedDayStat, date: string}>]>()
+    useEffect(() => {
+        //split up the reviews per day into packets of seven
+        let reviewsPerDay = Object.values(data.reviewPerDay);
+        let reviewsPerDayDate = Object.keys(data.reviewPerDay);
+        let reviewsPerWeek:[Array<{stats: generatedDayStat, date: string}>]= [[]]
+        let week = 0
+        for(const [index, value] of reviewsPerDay.entries()){
+            if(index % 7 === 0 && index !== 0){
+                week += 1
+                reviewsPerWeek[week] = [{stats: value, date: reviewsPerDayDate[index]}]
+            }
+            else{
+                reviewsPerWeek[week].push({stats: value, date: reviewsPerDayDate[index]})
+            }
+        }
+        console.log(reviewsPerWeek)
+        setReviewsPerWeek(reviewsPerWeek)
+    }, []);
+    return(
+        <div className="reviewPerDayGrid">
+            {reviewsPerWeek ? reviewsPerWeek.map((week, index) => {
+                return (
+                    <div key={`week${index}`} className="reviewPerDayGridColumn">
+                        {week.map((day, index) => {
+                            return (
+                                <div key={index} className="reviewPerDayGridElement">
+                                </div>
+                            )
+                        })}
+                </div>)
+            }) : <div>null</div>}
+        </div>
     )
 }
 
@@ -333,7 +375,9 @@ export default function ReactCharts() {
             setChartData(stats)
             setLineChartKey(lineChartKey + 1)
         }
-
+        else if(id === '30'){
+            setLineChartKey(lineChartKey + 1)
+        }
     }
 
     return (
@@ -351,6 +395,7 @@ export default function ReactCharts() {
             {
                 isRegistered ? (
                     <div>
+                        <ReviewPerDayChart data={chartData}/>
                         <LineChart data={chartData} key={lineChartKey}/>
                         <h2>Card Counts</h2>
                         <DoughnutChart data={stats}/>
