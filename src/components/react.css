@@ -15,3 +15,19 @@
     background: rgba(95, 20, 174, 0.2);
     scale: 1.05;
 }
+.reviewPerDayGrid{
+    display: flex;
+    flex-direction: row;
+    width: 20px;
+    padding: 10px;
+}
+.reviewPerDayGridColumn{
+    display: flex;
+    flex-direction: column;
+}
+.reviewPerDayGridElement{
+    width: 10px;
+    height: 10px;
+    background-color: rgb(95, 20, 174);
+    border-radius: 5px;
+}
