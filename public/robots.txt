@@ -1,3 +1,9 @@
+User-agent:  Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot
+Disallow: *
+User-agent: ; OAI-SearchBot/1.0; +https://openai.com/searchbot
+Disallow: *
+User-agent: Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot
+Disallow: *
 User-agent: *
 Allow: /
 
