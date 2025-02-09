@@ -2,12 +2,23 @@
 // and save them to a JSON file (in ./dist/stats.json)
 import type {AnkiDBCollection, AnkIDBDeck, AnkiRevision} from "./lib/ankiDBTypes";
 import {DataBaseObject} from "./lib/types";
+const sqlite3 = require('sqlite3').verbose();
 const logger = require('./lib/logger').default;
 const env = require('dotenv').config()
 const fs = require('node:fs');
 const addEmptyDates = process.env.ADD_EMPTY_DATES ? process.env.ADD_EMPTY_DATES === "true" : false;
 const addSeperateYears = process.env.ADD_SEPERATE_YEARS ? process.env.ADD_SEPERATE_YEARS === "true" : false;
 const log = new logger();
+
+export const fetchAll = async (db, sql, params):Promise<any> => {
+    return new Promise((resolve, reject):any => {
+        db.all(sql, params, (err, rows) => {
+            if (err) reject(err);
+            resolve(rows);
+        });
+    });
+};
+
 async function main(){
     log.log('Starting stat generation', 'info', 'Startup');
     log.log('Checking for Anki DB', 'debug', 'Startup');
@@ -17,7 +28,7 @@ async function main(){
         log.log('Was not able to find AnkiDB, did you set the ANKI_DB_PATH variable in your .env file?', 'error', 'Startup')
         process.exit(1);
     }
-    const db = require('better-sqlite3')(dbPath, {readonly: true, verbose: process.env.LOG_LEVEL == 'debug' ? console.log : null});
+    const db = new sqlite3.Database(dbPath)
     log.log('AnkiDB Locked and Loaded!', 'info', 'Startup');
 
     log.log('Checking for stats.json & unlinking if found', 'debug', 'Startup');
@@ -25,9 +36,12 @@ async function main(){
         fs.unlinkSync('./dist/stats.json');
         log.log('stats.json found and deleted', 'info', 'Startup');
     }
-
     log.log('Checking collections table', 'debug', 'DB Check');
-    const decks:Array<AnkIDBDeck> = db.prepare('SELECT * FROM decks').all();
+    const decks:Array<AnkIDBDeck> = await fetchAll(db, 'SELECT * FROM decks', []).catch((err)=>{
+        log.log('Error fetching from decks table', 'error', 'DB Check');
+        log.log(err, 'error', 'DB Check');
+        process.exit(1);
+    });
 
     //choose the deck you want to generate stats from
     let chosenDeck:AnkIDBDeck = {} as AnkIDBDeck
@@ -70,12 +84,17 @@ async function main(){
 
     //get all the revisions
     log.log('Getting everything  revisions table', 'debug', 'DB Check');
-    const revisions:Array<AnkiRevision> = db.prepare(`SELECT revlog.* 
-        FROM main.revlog
-            INNER JOIN  main.cards ON main.revlog.cid = main.cards.id
-            WHERE main.cards.did = ${chosenDeck.id}
-        ORDER BY main.revlog.id ASC;
-    `).all();
+    const revisions:Array<AnkiRevision> = await fetchAll(db, `
+        SELECT revlog.* 
+            FROM main.revlog
+                INNER JOIN  main.cards ON main.revlog.cid = main.cards.id
+                WHERE main.cards.did = ${chosenDeck.id}
+            ORDER BY main.revlog.id ASC;
+    `, []).catch((err)=>{
+        log.log('Error fetching from revlog table', 'error', 'DB Check');
+        log.log(err, 'error', 'DB Check');
+        process.exit(1);
+    })
     log.log(`Got ${revisions.length} revisions for the deck`, 'debug', 'DB Check');
 
     let generatedStats:DataBaseObject = {
@@ -213,6 +232,12 @@ async function main(){
     generatedStats.intervalDistribution = generatedIntervals;
 
     log.log('Stats generated', 'info', 'Stats');
+
+    //Check if the dist folder exists
+    if(!fs.existsSync('./dist')){
+        fs.mkdirSync('./dist');
+    }
+
     //save the stats to a file
     fs.writeFileSync('./dist/stats.json', JSON.stringify(generatedStats));
     log.log('Stats saved to stats.json', 'info', 'File Write');
