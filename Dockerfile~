@@ -38,4 +38,4 @@ ENV SYNC_BASE /ankiSync
 ARG SYNC_USER1
 EXPOSE 8080
 
-ENTRYPOINT ["/anki-tools/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
