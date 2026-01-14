@@ -1,0 +1,12 @@
+services:
+  ankiSync:
+    image: boerg:ankisync
+    build:
+      .
+    ports:
+      - 8872:8080
+    environment:
+      - SYNC_USER1=sirberg:156504
+        #command: ["sleep", "100000"]
+    volumes:
+      - /mnt/user/containers/anki/ankiSync:/ankiSync
